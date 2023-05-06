@@ -6,25 +6,51 @@ const port: number = 8080;
 
 const mockData = [1, 2, 3, 4];
 
-//* loggin middleware
-app.use((req, res, next) => {
-  console.log(req.rawHeaders[1]);
-  console.log('this is logging middleware!!');
+//* singleton 패턴
+class Server {
+  public app: express.Application;
 
-  // 다음 라우터 실행
-  next();
-});
+  constructor() {
+    const app: express.Application = express();
+    this.app = app;
+  }
 
-//* json-parser middleware
-app.use(express.json());
+  private setRoute() {
+    app.use(catsRouter);
+  }
 
-app.use(catsRouter);
+  private setMiddleware() {
+    //* loggin middleware
+    app.use((req, res, next) => {
+      console.log(req.rawHeaders[1]);
+      console.log('this is logging middleware!!');
 
-//* 404 middleware
-app.use((req, res, next) => {
-  res.send({ error: '404 not found error' });
-});
+      // 다음 라우터 실행
+      next();
+    });
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
-});
+    //* json-parser middleware
+    app.use(express.json());
+
+    this.setRoute();
+
+    //* 404 middleware
+    app.use((req, res, next) => {
+      res.send({ error: '404 not found error' });
+    });
+  }
+
+  public listen() {
+    this.setMiddleware();
+    this.app.listen(port, () => {
+      console.log(`Example app listening at http://localhost:${port}`);
+    });
+  }
+}
+
+function init() {
+  const server = new Server();
+  server.listen();
+}
+
+init();
