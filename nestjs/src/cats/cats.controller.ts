@@ -10,24 +10,31 @@ import {
   Post,
   Put,
   UseFilters,
+  UseInterceptors,
 } from '@nestjs/common';
-import { HttpExceptionFilter } from '../http-exception.filter';
+import { SuccessInterceptor } from 'src/common/interceptors/success.interceptor';
+import { HttpExceptionFilter } from '../common/exceptions/http-exception.filter';
 import { CatsService } from './cats.service';
 
 @Controller('cats')
-@UseFilters(HttpExceptionFilter)
+@UseInterceptors(SuccessInterceptor)
+@UseFilters(HttpExceptionFilter) // 클래스 전체에 적용
 export class CatsController {
   constructor(private readonly catsService: CatsService) {}
 
   @Get()
+  @UseFilters(HttpExceptionFilter) // 개별로 적용
   getAllCats() {
-    throw new HttpException('실패했어용', 401);
+    console.log('hello controller');
+
     return 'all cat';
   }
 
   @Get(':id')
-  getCat(@Param('id', ParseIntPipe) param) {
+  getCat(@Param('id', ParseIntPipe) param: number) {
     console.log(param);
+    console.log(typeof param);
+
     return 'one cat';
   }
 

@@ -15,20 +15,22 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const status = exception.getStatus();
     const error = exception.getResponse();
 
+    const common = {
+      success: false,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+    };
+
     if (typeof error === 'string') {
       response.status(status).json({
-        success: false,
-        timestamp: new Date().toISOString(),
-        path: request.url,
+        ...common,
         error,
       });
     }
 
     if (typeof error === 'object') {
       response.status(status).json({
-        success: false,
-        timestamp: new Date().toISOString(),
-        path: request.url,
+        ...common,
         ...error,
       });
     }
